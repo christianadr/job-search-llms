@@ -160,5 +160,5 @@ cython_debug/
 #.idea/
 
 # Generated files
-*.csv
-*.json
+data/raw/*.csv
+data/raw/*.json
