@@ -11,7 +11,7 @@ idna==3.7
 ipykernel==6.29.4
 ipython==8.23.0
 jedi==0.19.1
--e git+https://github.com/christianadr/job-search-llms.git@32bc723721d93e0413b152fe03f3a309e0032804#egg=Job_Match_using_Vector_Search_V1
+-e git+https://github.com/christianadr/job-search-llms.git@25d549118c8ad38fa64cce8967d0342a8379413d#egg=Job_Match_using_Vector_Search_V1
 jupyter_client==8.6.1
 jupyter_core==5.7.2
 matplotlib-inline==0.1.7
@@ -31,6 +31,7 @@ requests==2.31.0
 six==1.16.0
 stack-data==0.6.3
 tornado==6.4
+tqdm==4.66.2
 traitlets==5.14.3
 typing_extensions==4.11.0
 urllib3==2.2.1

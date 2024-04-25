@@ -1,11 +1,13 @@
 import json
 import os
+import time
 from pathlib import Path
 
 import requests
 from dotenv import load_dotenv
+from tqdm import tqdm
 
-import src.globals as g
+import src.constants.globals as g
 
 load_dotenv()
 
@@ -16,7 +18,12 @@ def scrape_job_listings(keywords: list[str]):
     Args:
         keywords (list[str]): Keywords to be used in query.
     """
-    for keyword in keywords:
+
+    g.DATA_DIR.mkdir(parents=True, exist_ok=True)
+
+    for keyword in tqdm(keywords, desc="Fetching job listings", total=len(keywords)):
+        time.sleep(5)  # 2-second delay
+
         query = {"query": f"{keyword} in Philippines", "page": "1", "num_pages": "20"}
 
         headers = {
@@ -34,3 +41,14 @@ def scrape_job_listings(keywords: list[str]):
 
             with open(filename, "w") as f:
                 json.dump(_data, f)
+
+        else:
+            print(response.status_code)
+
+
+def main():
+    scrape_job_listings(keywords=g.KEYWORDS)
+
+
+if __name__ == "__main__":
+    main()
