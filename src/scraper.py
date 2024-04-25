@@ -1,42 +1,36 @@
-import urllib.parse
+import json
+import os
+from pathlib import Path
 
 import requests
-from bs4 import BeautifulSoup
+from dotenv import load_dotenv
+
+import src.globals as g
+
+load_dotenv()
 
 
-def get_job_data(url, headers):
-    response = requests.get(url=url, headers=headers)
-    if response.status_code == 200:
-        soup = BeautifulSoup(response.content, "html.parser")
-        job_titles = soup.find_all("h2", attrs={"class": "title"})
-        job_locations = soup.find_all("div", class_="location")
-        for title, location in zip(job_titles, job_locations):
-            yield title.get_text(strip=True), location.get_text(strip=True)
+def scrape_job_listings(keywords: list[str]):
+    """Scrape job listings using the given keywords.
 
+    Args:
+        keywords (list[str]): Keywords to be used in query.
+    """
+    for keyword in keywords:
+        query = {"query": f"{keyword} in Philippines", "page": "1", "num_pages": "20"}
 
-def main():
-    input_keywords = urllib.parse.quote(input("Enter skill/s: "))
-    input_location = urllib.parse.quote(input("Enter location: "))
+        headers = {
+            "X-RapidAPI-Key": os.environ["X_RapidAPI_Key"],
+            "X-RapidAPI-Host": "jsearch.p.rapidapi.com",
+        }
 
-    base_url = "https://ph.indeed.com/jobs?"
-    url = f"{base_url}q={input_keywords}&l={input_location}"
-    headers = {
-        "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/96.0.4664.45 Safari/537.36"
-    }
+        response = requests.get(g.SEARCH_URL, headers=headers, params=query)
 
-    response = requests.get(url=url, headers=headers)
-    if response.status_code == 200:
-        soup = BeautifulSoup(response.content, "html.parser")
-        a_elements = soup.find_all("a", id=lambda x: x and x.startswith("job_"))
-        job_ids = [element.get("id").split("_")[1] for element in a_elements]
+        if response.status_code == 200:
+            _data = response.json()
+            _data = _data["data"]
 
-        for job_id in job_ids:
-            job_url = f"{url}&vjk={job_id}"
-            for title, location in get_job_data(job_url, headers):
-                print("Title:", title)
-                print("Location:", location)
-                print()
+            filename = Path(g.DATA_DIR, f"{keyword}.json")
 
-
-if __name__ == "__main__":
-    main()
+            with open(filename, "w") as f:
+                json.dump(_data, f)
